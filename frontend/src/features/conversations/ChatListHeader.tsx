@@ -1,6 +1,13 @@
 const filters = ['All', 'Unread', 'Groups', 'Requests'] as const
 
-export function ChatListHeader() {
+type ChatListHeaderProps = {
+  search?: {
+    value: string
+    onChange: (value: string) => void
+  }
+}
+
+export function ChatListHeader({ search }: ChatListHeaderProps) {
   return (
     <header className="shrink-0 px-6 pt-6 pb-2 sm:px-7">
       <div className="flex items-center justify-between gap-4">
@@ -28,7 +35,7 @@ export function ChatListHeader() {
         </button>
       </div>
 
-      <div className="mt-5 flex h-11 items-center gap-3 rounded-full bg-[#e9eaec] px-4 text-[#767d87]">
+      <div className="mt-5 flex h-11 items-center gap-3 rounded-full bg-[#e9eaec] px-4 text-[#767d87] transition-colors focus-within:bg-white focus-within:ring-2 focus-within:ring-[#e60023]/60">
         <svg
           aria-hidden="true"
           className="size-5 shrink-0"
@@ -44,10 +51,12 @@ export function ChatListHeader() {
 
         <input
           type="search"
-          aria-label="Search people or messages"
-          placeholder="Search people, messages..."
-          disabled
-          className="min-w-0 flex-1 truncate bg-transparent text-sm placeholder:text-[#767d87] disabled:opacity-100"
+          aria-label="Search people"
+          placeholder="Search people..."
+          value={search?.value ?? ''}
+          onChange={(event) => search?.onChange(event.currentTarget.value)}
+          disabled={!search}
+          className="min-w-0 flex-1 truncate bg-transparent text-base outline-none placeholder:text-[#767d87] disabled:opacity-100 sm:text-sm"
         />
       </div>
 

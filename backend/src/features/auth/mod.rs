@@ -144,8 +144,22 @@ impl MongoksyClient {
         path: &str,
         access_token: &str,
     ) -> Result<T, StatusCode> {
-        let request = self.http.get(self.endpoint(path)).bearer_auth(access_token);
+        self.get_json_with_query(path, access_token, &[]).await
+    }
 
+    pub(super) async fn get_json_with_query<T: DeserializeOwned>(
+        &self,
+        path: &str,
+        access_token: &str,
+        query: &[(&str, &str)],
+    ) -> Result<T, StatusCode> {
+        let mut url = self.endpoint(path);
+
+        if !query.is_empty() {
+            url.query_pairs_mut().extend_pairs(query.iter().copied());
+        }
+
+        let request = self.http.get(url).bearer_auth(access_token);
         request_json(request).await
     }
 

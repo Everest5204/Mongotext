@@ -44,11 +44,22 @@ const tabs = [
   },
 ]
 
-export function ChatBottomNav() {
+type ChatBottomNavProps = {
+  desktopRail?: boolean
+}
+
+export function ChatBottomNav({ desktopRail = false }: ChatBottomNavProps) {
+  const railLayout = desktopRail
+    ? 'md:flex md:h-full md:flex-col md:items-center md:gap-3 md:border-t-0 md:bg-[#fcfcfc] md:px-2 md:pt-4 md:pb-4'
+    : ''
+  const railButton = desktopRail
+    ? 'md:size-11 md:shrink-0 md:rounded-[14px] md:px-0'
+    : ''
+
   return (
     <nav
       aria-label="Mongotext tabs"
-      className="grid shrink-0 grid-cols-4 rounded-t-[18px] border-t border-black/5 bg-[#f9f9fa] px-2 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-3px_12px_rgba(0,0,0,0.03)]"
+      className={`grid shrink-0 grid-cols-4 border-t border-[#eceef0] bg-white px-2 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${railLayout}`}
     >
       {tabs.map(({ label, icon }) => {
         const isActive = label === 'Chats'
@@ -58,14 +69,17 @@ export function ChatBottomNav() {
             key={label}
             type="button"
             aria-current={isActive ? 'page' : undefined}
+            title={desktopRail ? label : undefined}
             disabled
-            className={`flex flex-col items-center justify-center gap-1 text-[13px] font-medium disabled:opacity-100 ${
+            className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-1 text-xs font-medium disabled:opacity-100 ${railButton} ${
               isActive ? 'text-[#e60023]' : 'text-[#68707a]'
+            } ${desktopRail && isActive ? 'md:bg-[#fce9ee]' : ''} ${
+              desktopRail && label === 'Account' ? 'md:mt-auto' : ''
             }`}
           >
             <svg
               aria-hidden="true"
-              className="size-7"
+              className="size-6"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -76,7 +90,7 @@ export function ChatBottomNav() {
               {icon}
             </svg>
 
-            <span>{label}</span>
+            <span className={desktopRail ? 'md:sr-only' : undefined}>{label}</span>
           </button>
         )
       })}
