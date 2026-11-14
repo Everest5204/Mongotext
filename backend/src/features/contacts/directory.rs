@@ -3,7 +3,7 @@ use std::{env, time::Duration};
 use axum::http::StatusCode;
 use mongodb::{
     Client, Collection,
-    bson::{doc, oid::ObjectId},
+    bson::{Document, doc, oid::ObjectId},
     options::ClientOptions,
 };
 use serde::Deserialize;
@@ -49,11 +49,30 @@ async fn users_collection() -> Result<&'static Collection<DirectoryUser>, Status
         .await
 }
 
-pub(super) async fn list_users(after: Option<&str>) -> Result<DirectoryPage, StatusCode> {
-    let mut filter = doc! {
+fn active_users_filter() -> Document {
+    doc! {
         "deactivated": { "$ne": true },
         "deletion_requested": { "$ne": true },
-    };
+    }
+}
+
+pub(super) async fn contains_user(id: ObjectId) -> Result<bool, StatusCode> {
+    let mut filter = active_users_filter();
+    filter.insert("_id", id);
+
+    let user = users_collection()
+        .await?
+        .find_one(filter)
+        .projection(doc! { "_id": 1 })
+        .max_time(Duration::from_secs(2))
+        .await
+        .map_err(|_| StatusCode::BAD_GATEWAY)?;
+
+    Ok(user.is_some())
+}
+
+pub(super) async fn list_users(after: Option<&str>) -> Result<DirectoryPage, StatusCode> {
+    let mut filter = active_users_filter();
 
     if let Some(after) = after {
         let id = ObjectId::parse_str(after).map_err(|_| StatusCode::BAD_REQUEST)?;

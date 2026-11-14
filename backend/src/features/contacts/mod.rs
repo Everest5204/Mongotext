@@ -7,6 +7,7 @@ use axum::{
     response::IntoResponse,
     routing::get,
 };
+use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize, de::IgnoredAny};
 use tower_sessions::Session;
 
@@ -84,6 +85,10 @@ pub(super) fn routes(client: Result<MongoksyClient, StatusCode>) -> Router {
     Router::new()
         .route("/api/contacts", get(get_contacts))
         .with_state(client)
+}
+
+pub(super) async fn active_contact_exists(id: ObjectId) -> Result<bool, StatusCode> {
+    directory::contains_user(id).await
 }
 
 async fn get_contacts(

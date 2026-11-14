@@ -6,6 +6,7 @@ use tower_sessions::{
 mod auth;
 mod contacts;
 mod health;
+mod messages;
 
 pub fn routes() -> axum::Router {
     let client = auth::MongoksyClient::from_env();
@@ -18,7 +19,8 @@ pub fn routes() -> axum::Router {
         .with_expiry(Expiry::OnInactivity(Duration::hours(8)));
 
     let session_routes = auth::routes(client.clone())
-        .merge(contacts::routes(client))
+        .merge(contacts::routes(client.clone()))
+        .merge(messages::routes(client))
         .layer(session_layer);
 
     health::routes().merge(session_routes)

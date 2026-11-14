@@ -186,7 +186,7 @@ async fn request_json<T: DeserializeOwned>(request: RequestBuilder) -> Result<T,
     }
 }
 
-fn same_local_origin(headers: &HeaderMap) -> bool {
+pub(super) fn same_local_origin(headers: &HeaderMap) -> bool {
     let Some(host) = headers.get(HOST).and_then(|value| value.to_str().ok()) else {
         return false;
     };
